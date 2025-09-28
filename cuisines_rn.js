@@ -14,61 +14,65 @@ import { useSystemTheme } from './theme';
 
 const { width, height } = Dimensions.get('window');
 
-const DietaryRestrictionsScreen = ({ onNext }) => {
+const CuisinesScreen = ({ onNext }) => {
   const { onboardingData, updateOnboardingData } = useOnboarding();
   const { isDarkMode, theme } = useSystemTheme();
-  const [selectedRestrictions, setSelectedRestrictions] = useState(
-    onboardingData.dietaryRestrictions || []
+  const [selectedCuisines, setSelectedCuisines] = useState(
+    onboardingData.preferredCuisines || []
   );
 
-  // Dietary restrictions options
-  const dietaryOptions = [
-    'Gluten-free',
-    'Dairy-free', 
-    'Nut-free',
-    'Egg-free',
-    'Soy-free',
-    'Vegetarian',
-    'Vegan',
-    'Halal',
-    'Kosher',
-    'Low-carb',
-    'Keto',
-    'Paleo'
+  // Cuisine options
+  const cuisineOptions = [
+    'Italian',
+    'Mexican',
+    'Chinese',
+    'Japanese',
+    'Indian',
+    'Thai',
+    'Mediterranean',
+    'French',
+    'American',
+    'Korean',
+    'Vietnamese',
+    'Greek',
+    'Middle Eastern',
+    'Spanish',
+    'Brazilian',
+    'Turkish'
   ];
 
-  // Handle restriction toggle
-  const toggleRestriction = (restriction) => {
-    setSelectedRestrictions(prev => 
-      prev.includes(restriction)
-        ? prev.filter(item => item !== restriction)
-        : [...prev, restriction]
+  // Handle cuisine toggle
+  const toggleCuisine = (cuisine) => {
+    setSelectedCuisines(prev => 
+      prev.includes(cuisine)
+        ? prev.filter(item => item !== cuisine)
+        : [...prev, cuisine]
     );
   };
 
   // Select all functionality
   const selectAll = () => {
-    if (selectedRestrictions.length === dietaryOptions.length) {
-      setSelectedRestrictions([]);
+    if (selectedCuisines.length === cuisineOptions.length) {
+      setSelectedCuisines([]);
     } else {
-      setSelectedRestrictions([...dietaryOptions]);
+      setSelectedCuisines([...cuisineOptions]);
     }
   };
 
   const handleContinue = () => {
     updateOnboardingData({
-      dietaryRestrictions: selectedRestrictions,
-      currentStep: 'cuisines'
+      preferredCuisines: selectedCuisines,
+      currentStep: 'budget'
     });
-    onNext('cuisines');
+    onNext('budget');
   };
 
   const handleSkip = () => {
     updateOnboardingData({
-      dietaryRestrictions: [],
-      currentStep: 'cuisines'
+      preferredCuisines: [],
+      currentStep: 'budget'
     });
-    onNext('cuisines');
+    onNext('budget');
   };
 
   return (
@@ -88,29 +92,29 @@ const DietaryRestrictionsScreen = ({ onNext }) => {
         {/* Title Section */}
         <View style={styles.titleSection}>
           <Text style={[styles.mainTitle, { color: theme.text }]}>
-            Dietary{'\n'}Restrictions
+            Favorite{'\n'}Cuisines
           </Text>
           <Text style={[styles.subtitle, { color: theme.textSecondary }]}>
-            Let us know about your dietary preferences so we can personalize your meal plans
+            Choose your preferred cuisines to help us recommend the perfect restaurants for you
           </Text>
         </View>
 
         {/* Select All Button */}
         <TouchableOpacity onPress={selectAll} style={styles.selectAllButton}>
           <Text style={[styles.selectAllText, { color: theme.accent }]}>
-            {selectedRestrictions.length === dietaryOptions.length ? 'Deselect All' : 'Select All'}
+            {selectedCuisines.length === cuisineOptions.length ? 'Deselect All' : 'Select All'}
           </Text>
         </TouchableOpacity>
 
-        {/* Dietary Options */}
+        {/* Cuisine Options */}
         <View style={styles.optionsContainer}>
-          {dietaryOptions.map((restriction) => {
-            const isSelected = selectedRestrictions.includes(restriction);
+          {cuisineOptions.map((cuisine) => {
+            const isSelected = selectedCuisines.includes(cuisine);
             
             return (
               <TouchableOpacity
-                key={restriction}
-                onPress={() => toggleRestriction(restriction)}
+                key={cuisine}
+                onPress={() => toggleCuisine(cuisine)}
                 style={[
                   styles.optionItem,
                   { 
@@ -131,7 +135,7 @@ const DietaryRestrictionsScreen = ({ onNext }) => {
                   )}
                 </View>
                 <Text style={[styles.optionText, { color: theme.text }]}>
-                  {restriction}
+                  {cuisine}
                 </Text>
               </TouchableOpacity>
             );
@@ -139,10 +143,10 @@ const DietaryRestrictionsScreen = ({ onNext }) => {
         </View>
 
         {/* Selected Count */}
-        {selectedRestrictions.length > 0 && (
+        {selectedCuisines.length > 0 && (
           <View style={[styles.selectedCount, { backgroundColor: theme.accent }]}>
             <Text style={[styles.selectedCountText, { color: theme.accentText }]}>
-              {selectedRestrictions.length} selected
+              {selectedCuisines.length} selected
             </Text>
           </View>
         )}
@@ -295,4 +299,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default DietaryRestrictionsScreen;
+export default CuisinesScreen;

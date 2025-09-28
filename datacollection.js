@@ -59,6 +59,18 @@ export const OnboardingProvider = ({ children }) => {
       }
     },
     
+    // Trip planning
+    trip: {
+      pointA: null,
+      pointB: null,
+      pointAPlaceId: null,
+      pointBPlaceId: null,
+      departureTime: null,
+      estimatedDuration: null,
+      estimatedDistance: null,
+      routeCompleted: false
+    },
+    
     // App preferences
     theme: 'light',
     notifications: true,

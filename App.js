@@ -11,15 +11,16 @@ import {
 import SplashScreen from './SplashScreen';
 import AuthScreen from './AuthScreen';
 import TransitionScreen from './TransitionScreen';
-import { getTheme } from './theme';
+import { useSystemTheme } from './theme';
 // import WelcomeOnboardingScreen from './onboarding';
 // import HomeAddressScreen from './homelocation';
 import DietaryRestrictionsScreen from './dietary';
-// import CuisinesScreen from './cuisines';
-// import BudgetScreen from './budget';
-// import BreakfastScreen from './breakfast';
-// import LunchScreen from './lunch';
-// import DinnerScreen from './dinner';
+import CuisinesScreen from './cuisines_rn';
+import BudgetScreen from './budget_rn';
+import BreakfastScreen from './breakfast_rn';
+import LunchScreen from './lunch_rn';
+import DinnerScreen from './dinner_rn';
+import TripScreen from './trip_rn';
 // import SummaryScreen from './summary';
 
 // Main navigation component that uses the onboarding data
@@ -27,12 +28,11 @@ const AppNavigator = () => {
   const { onboardingData, updateStep } = useOnboarding();
   const [currentScreen, setCurrentScreen] = useState('splash');
   const [animationStep, setAnimationStep] = useState(0);
-  const [isDarkMode, setIsDarkMode] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [userData, setUserData] = useState(null);
   const [userTokens, setUserTokens] = useState(null);
 
-  const theme = getTheme(isDarkMode);
+  const { isDarkMode, theme } = useSystemTheme();
 
   // Navigation function that also updates onboarding data
   const navigateToScreen = (screen) => {
@@ -115,8 +115,6 @@ const AppNavigator = () => {
       case 'splash':
         return (
           <SplashScreen 
-            isDarkMode={isDarkMode}
-            setIsDarkMode={setIsDarkMode}
             animationStep={animationStep}
             setAnimationStep={setAnimationStep}
             onAnimationComplete={handleSplashComplete}
@@ -126,8 +124,6 @@ const AppNavigator = () => {
       case 'transition':
         return (
           <TransitionScreen 
-            isDarkMode={isDarkMode}
-            setIsDarkMode={setIsDarkMode}
             navigateToScreen={navigateToScreen}
           />
         );
@@ -135,8 +131,6 @@ const AppNavigator = () => {
       case 'auth':
         return (
           <AuthScreen 
-            isDarkMode={isDarkMode}
-            setIsDarkMode={setIsDarkMode}
             onGoogleSignUp={handleGoogleSignUp}
             onGoogleLogin={handleGoogleLogin}
           />
@@ -152,25 +146,29 @@ const AppNavigator = () => {
       case 'dietary':
         return <DietaryRestrictionsScreen onNext={navigateToScreen} />;
       
-      // case 'cuisines':
-      //   return <CuisinesScreen onNext={navigateToScreen} />;
+      case 'cuisines':
+        return <CuisinesScreen onNext={navigateToScreen} />;
       
-      // case 'budget':
-      //   return <BudgetScreen onNext={navigateToScreen} />;
+      case 'budget':
+        return <BudgetScreen onNext={navigateToScreen} />;
       
-      // case 'breakfast':
-      //   return <BreakfastScreen onNext={navigateToScreen} />;
+      case 'breakfast':
+        return <BreakfastScreen onNext={navigateToScreen} />;
       
-      // case 'lunch':
-      //   return <LunchScreen onNext={navigateToScreen} />;
+      case 'lunch':
+        return <LunchScreen onNext={navigateToScreen} />;
       
-      // case 'dinner':
-      //   return <DinnerScreen onNext={navigateToScreen} />;
+      case 'dinner':
+        return <DinnerScreen onNext={navigateToScreen} />;
+      
+      case 'trip':
+        return <TripScreen onNext={navigateToScreen} />;
       
       // case 'summary':
       //   return <SummaryScreen onNext={navigateToScreen} />;
       
       case 'main':
+      case 'home':
       default:
         return <MainApp />;
     }

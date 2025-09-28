@@ -1,0 +1,51 @@
+2025-09-28 04:49:46,966 - __main__ - WARNING - 🔑 Google Places API key not set - using mock data
+2025-09-28 04:49:46,966 - __main__ - WARNING -    Set GOOGLE_PLACES_API_KEY environment variable for real data
+2025-09-28 04:49:46,966 - __main__ - INFO - 🍔 FoodRunner AI Backend Starting...
+2025-09-28 04:49:46,966 - __main__ - INFO -    Environment: development
+2025-09-28 04:49:46,966 - __main__ - INFO -    Debug Mode: True
+2025-09-28 04:49:46,966 - __main__ - INFO -    Server: http://0.0.0.0:5000
+2025-09-28 04:49:46,966 - __main__ - INFO -    Health Check: http://0.0.0.0:5000/
+2025-09-28 04:49:46,966 - __main__ - INFO - 📡 Available API Endpoints:
+2025-09-28 04:49:46,966 - __main__ - INFO -    POST /api/restaurants/search-along-route - Search restaurants along route
+2025-09-28 04:49:46,966 - __main__ - INFO -    POST /api/restaurants/nearby - Search nearby restaurants
+2025-09-28 04:49:46,966 - __main__ - INFO -    POST /api/trips/create - Create new trip
+2025-09-28 04:49:46,966 - __main__ - INFO -    POST /api/recommendations/personalized - Get AI recommendations
+2025-09-28 04:49:46,966 - __main__ - INFO -    POST /api/users/create - Create user profile
+2025-09-28 04:54:52,561 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:3001
+ * Running on http://35.3.252.14:3001
+2025-09-28 04:54:52,561 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-09-28 04:54:52,561 - werkzeug - INFO -  * Restarting with stat
+2025-09-28 04:54:52,681 - werkzeug - WARNING -  * Debugger is active!
+2025-09-28 04:54:52,689 - werkzeug - INFO -  * Debugger PIN: 274-705-075
+2025-09-28 04:57:04,061 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:3001
+ * Running on http://35.3.252.14:3001
+2025-09-28 04:57:04,061 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-09-28 04:57:04,061 - werkzeug - INFO -  * Restarting with stat
+2025-09-28 04:57:04,184 - werkzeug - WARNING -  * Debugger is active!
+2025-09-28 04:57:04,192 - werkzeug - INFO -  * Debugger PIN: 274-705-075
+2025-09-28 05:00:14,872 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:3001
+ * Running on http://35.3.252.14:3001
+2025-09-28 05:00:14,872 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-09-28 05:00:14,872 - werkzeug - INFO -  * Restarting with stat
+2025-09-28 05:00:14,996 - werkzeug - WARNING -  * Debugger is active!
+2025-09-28 05:00:15,005 - werkzeug - INFO -  * Debugger PIN: 274-705-075
+2025-09-28 05:00:31,514 - werkzeug - INFO - 127.0.0.1 - - [28/Sep/2025 05:00:31] "[33mGET /health HTTP/1.1[0m" 404 -
+2025-09-28 05:00:47,906 - werkzeug - INFO - 127.0.0.1 - - [28/Sep/2025 05:00:47] "[33mGET /health HTTP/1.1[0m" 404 -
+2025-09-28 05:00:58,918 - werkzeug - INFO -  * Detected change in '/Users/krrishk/foodrunner/backend/app/__init__.py', reloading
+2025-09-28 05:00:58,960 - werkzeug - INFO -  * Restarting with stat
+2025-09-28 05:00:59,175 - werkzeug - WARNING -  * Debugger is active!
+2025-09-28 05:00:59,183 - werkzeug - INFO -  * Debugger PIN: 274-705-075
+2025-09-28 05:01:29,648 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:3001
+ * Running on http://35.3.252.14:3001
+2025-09-28 05:01:29,648 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-09-28 05:01:29,648 - werkzeug - INFO -  * Restarting with stat
+2025-09-28 05:01:29,772 - werkzeug - WARNING -  * Debugger is active!
+2025-09-28 05:01:29,780 - werkzeug - INFO -  * Debugger PIN: 274-705-075

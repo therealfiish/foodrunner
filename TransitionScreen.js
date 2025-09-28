@@ -4,22 +4,20 @@ import {
   Text, 
   TouchableOpacity, 
   StyleSheet, 
-  Dimensions, 
+  Dimensions,
   Animated,
   SafeAreaView,
   StatusBar,
   Easing
 } from 'react-native';
-import { getTheme } from './theme';
+import { useSystemTheme } from './theme';
 
 const { width, height } = Dimensions.get('window');
 
 const TransitionScreen = ({ 
-  isDarkMode, 
-  setIsDarkMode, 
   navigateToScreen 
 }) => {
-  const theme = getTheme(isDarkMode);
+  const { isDarkMode, theme } = useSystemTheme();
 
   // Animation values
   const titleMoveUpAnim = useRef(new Animated.Value(0)).current; // 0 = splash position, 1 = auth position
@@ -27,37 +25,33 @@ const TransitionScreen = ({
   const subtitleOpacityAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    // Start the transition sequence
-    const startTransition = () => {
-      // Step 1: Move title upward (duration: 1200ms, smoother)
-      Animated.timing(titleMoveUpAnim, {
+    // Start the transition sequence immediately
+    // Step 1: Move title upward and make smaller (duration: 1200ms, smoother)
+    Animated.timing(titleMoveUpAnim, {
+      toValue: 1,
+      duration: 1200,
+      useNativeDriver: true,
+      // Add easing for smoother movement
+      easing: Easing.bezier(0.25, 0.46, 0.45, 0.94),
+    }).start();
+
+    // Step 2: Fade in subtitle (starts at 600ms, earlier for smoother flow)
+    setTimeout(() => {
+      Animated.timing(subtitleOpacityAnim, {
         toValue: 1,
-        duration: 1200,
+        duration: 800,
         useNativeDriver: true,
-        // Add easing for smoother movement
-        easing: Easing.bezier(0.25, 0.46, 0.45, 0.94),
       }).start();
+    }, 600);
 
-      // Step 2: Fade in subtitle (starts at 600ms, earlier for smoother flow)
-      setTimeout(() => {
-        Animated.timing(subtitleOpacityAnim, {
-          toValue: 1,
-          duration: 800,
-          useNativeDriver: true,
-        }).start();
-      }, 600);
-
-      // Step 3: Fade in buttons (starts at 1000ms)
-      setTimeout(() => {
-        Animated.timing(buttonsOpacityAnim, {
-          toValue: 1,
-          duration: 900,
-          useNativeDriver: true,
-        }).start();
-      }, 1000);
-    };
-
-    startTransition();
+    // Step 3: Fade in buttons (starts at 1000ms)
+    setTimeout(() => {
+      Animated.timing(buttonsOpacityAnim, {
+        toValue: 1,
+        duration: 900,
+        useNativeDriver: true,
+      }).start();
+    }, 1000);
   }, []);
 
   // Navigate to dietary screen
@@ -68,12 +62,12 @@ const TransitionScreen = ({
   // Calculate the interpolated position for title movement
   const titleTranslateY = titleMoveUpAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: [0, -height * 0.25], // From splash center position to auth top position
+    outputRange: [0, -height * 0.20], // Move up less (20% instead of 35%) - not too high
   });
 
   const titleScale = titleMoveUpAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: [1, 0.8], // Slightly smaller in auth position
+    outputRange: [1, 0.75], // Make it less small (75% instead of 65%) - more readable
   });
 
   return (
@@ -107,7 +101,7 @@ const TransitionScreen = ({
         {/* Animated Subtitle */}
         <Animated.View style={{ opacity: subtitleOpacityAnim }}>
           <Text style={[styles.subtitle, { color: theme.textSecondary }]}>
-            AI-powered meal planning for busy students
+            AI-powered meal planning for busy families
           </Text>
         </Animated.View>
 
@@ -122,14 +116,6 @@ const TransitionScreen = ({
             </Text>
           </TouchableOpacity>
         </Animated.View>
-
-        {/* Theme Toggle */}
-        <TouchableOpacity 
-          style={[styles.themeToggle, { backgroundColor: theme.cardBg }]}
-          onPress={() => setIsDarkMode(!isDarkMode)}
-        >
-          <Text style={styles.themeToggleText}>{isDarkMode ? '☀️' : '🌙'}</Text>
-        </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
@@ -141,14 +127,15 @@ const styles = StyleSheet.create({
   },
   titleContainer: {
     position: 'absolute',
-    top: height * 0.4, // Starting position (center of screen)
+    top: '50%', // Perfect center like SplashScreen
     left: 0,
     right: 0,
     alignItems: 'center',
     zIndex: 1,
+    marginTop: -40, // Center adjustment for text height
   },
   titleText: {
-    fontSize: width > 400 ? 64 : 48,
+    fontSize: width > 400 ? 80 : 48,
     fontWeight: 'bold',
     fontFamily: 'System',
     textAlign: 'center',
@@ -197,23 +184,6 @@ const styles = StyleSheet.create({
   authButtonText: {
     fontSize: 18,
     fontWeight: '600',
-  },
-  themeToggle: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-    alignSelf: 'center',
-    marginTop: 32,
-  },
-  themeToggleText: {
-    fontSize: 24,
   },
 });
 

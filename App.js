@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { OnboardingProvider } from './datacollection';
 import { 
   View, 
   Text, 
@@ -11,6 +12,15 @@ import SplashScreen from './SplashScreen';
 import AuthScreen from './AuthScreen';
 import TransitionScreen from './TransitionScreen';
 import { getTheme } from './theme';
+import WelcomeOnboardingScreen from './onboarding';
+import HomeAddressScreen from './homelocation';
+import DietaryRestrictionsScreen from './dietary';
+import CuisinesScreen from './cuisines';
+import BudgetScreen from './budget';
+import BreakfastScreen from './breakfast';
+import LunchScreen from './lunch';
+import DinnerScreen from './dinner';
+import SummaryScreen from './summary';
 
 const FoodRunner = () => {
   const [currentScreen, setCurrentScreen] = useState('splash');

@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
+import { useOnboarding } from './DataManager';
 
 const HomeAddressScreen = () => {
   const [isDarkMode, setIsDarkMode] = useState(false); // Starting with light mode
   const [address, setAddress] = useState('');
+  const { onboardingData, setOnboardingData } = useOnboarding();
 
   // Color theme variables
   const theme = {
@@ -44,6 +46,12 @@ const HomeAddressScreen = () => {
     } else {
       alert('Please enter your home address');
     }
+    setOnboardingData({
+      ...onboardingData,
+      homeAddress: address,
+      step: 'calendar.js',
+      onNext: 'calendar.js'
+    });
   };
 
   return (

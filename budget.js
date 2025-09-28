@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
+import { useOnboarding } from './datacollection';
 
 const BudgetScreen = () => {
   const [isDarkMode, setIsDarkMode] = useState(false); // Starting with light mode
   const [budget, setBudget] = useState(112); // Starting value in middle
+    const { onboardingData, setOnboardingData } = useOnboarding();
 
   // Color theme variables
   const theme = {
@@ -42,6 +44,12 @@ const BudgetScreen = () => {
     console.log('Selected budget:', budget);
     alert(`Budget set to: $${budget}`);
     // Navigate to next screen
+    setOnboardingData({
+      ...onboardingData,
+      budget: budget,
+      step: 'breakfast.js',
+      onNext: 'breakfast.js'
+    });
   };
 
   return (

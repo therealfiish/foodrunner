@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
+import { useOnboarding } from './datacollection';  
 
-const BreakfastPlanningScreen = () => {
+const BreakfastPlanningScreen = ({onNext}) => {
+    const { onboardingData, setOnboardingData } = useOnboarding();
   const [isDarkMode, setIsDarkMode] = useState(false); // Starting with light mode
   const [selectedTime, setSelectedTime] = useState({ hour: 8, minute: 0, period: 'AM' });
   const [radius, setRadius] = useState(5); // Starting at 5 miles
@@ -49,6 +51,15 @@ const BreakfastPlanningScreen = () => {
   };
 
   const handleContinue = () => {
+    setOnboardingData({
+      ...onboardingData,
+      breakfastTime: `${selectedTime.hour}:${selectedTime.minute.toString().padStart(2, '0')} ${selectedTime.period}`,
+      breakfastRadius: radius,
+      step: 'lunch.js',
+      onNext: 'lunch.js'
+    });
+    if (onNext) onNext();
+    // Prepare data to save or send to backend
     const timeData = {
       time: `${selectedTime.hour}:${selectedTime.minute.toString().padStart(2, '0')} ${selectedTime.period}`,
       radius: radius

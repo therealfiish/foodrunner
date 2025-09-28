@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
+import { useOnboarding } from './datacollection';
 
 const DinnerPlanningScreen = () => {
+    const { onboardingData, setOnboardingData } = useOnboarding();
   const [isDarkMode, setIsDarkMode] = useState(false); // Starting with light mode
   const [selectedTime, setSelectedTime] = useState({ hour: 7, minute: 0, period: 'PM' });
   const [radius, setRadius] = useState(5); // Starting at 5 miles
@@ -66,6 +68,12 @@ const DinnerPlanningScreen = () => {
     console.log('Dinner planning data:', timeData);
     alert(`Dinner planned for ${timeData.time} within ${radius} miles. Import settings: ${importFromBefore ? 'Yes' : 'No'}`);
     // Navigate to next screen
+    setOnboardingData({
+      ...onboardingData,
+      dinnerPlanning: timeData,
+      step: 'summary.js',
+      onNext: 'summary.js'
+    });
   };
 
   return (

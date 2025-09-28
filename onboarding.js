@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { useOnboarding } from './datacollection';
 
 const WelcomeOnboardingScreen = () => {
   const [isDarkMode, setIsDarkMode] = useState(true); // Starting with dark mode to match your design
   const [isVisible, setIsVisible] = useState(false);
+  const { onboardingData, setOnboardingData } = useOnboarding();
 
   // Color theme variables
   const theme = {
@@ -40,6 +42,11 @@ const WelcomeOnboardingScreen = () => {
     // This would navigate to the next onboarding step or main app
     console.log('Get Munching clicked!');
     alert('Moving to next step...');
+    setOnboardingData({
+      ...onboardingData,
+      step: 'homeaddress.js',
+      onNext: 'homeaddress.js'
+    });
   };
 
   return (

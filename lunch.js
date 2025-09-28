@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
+import { useOnboarding } from './datacollection';
 
 const LunchPlanningScreen = () => {
+    const { onboardingData, setOnboardingData } = useOnboarding();
   const [isDarkMode, setIsDarkMode] = useState(false); // Starting with light mode
   const [selectedTime, setSelectedTime] = useState({ hour: 12, minute: 0, period: 'PM' });
   const [radius, setRadius] = useState(5); // Starting at 5 miles
   const [importFromBefore, setImportFromBefore] = useState(true);
-
   // Color theme variables
   const theme = {
     light: {
@@ -65,6 +66,12 @@ const LunchPlanningScreen = () => {
     };
     console.log('Lunch planning data:', timeData);
     alert(`Lunch planned for ${timeData.time} within ${radius} miles. Import settings: ${importFromBefore ? 'Yes' : 'No'}`);
+    setOnboardingData({
+      ...onboardingData,
+      lunchTime: timeData,
+      step: 'dinner.js',
+      onNext: 'dinner.js'
+    });
     // Navigate to next screen
   };
 

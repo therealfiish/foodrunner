@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
+import { useOnboarding } from './datacollection';
 
 const DietaryRestrictionsScreen = () => {
+    const { onboardingData, setOnboardingData } = useOnboarding();
   const [isDarkMode, setIsDarkMode] = useState(true); // Starting with dark mode to match your design
   const [selectedRestrictions, setSelectedRestrictions] = useState([]);
 
@@ -64,6 +66,12 @@ const DietaryRestrictionsScreen = () => {
     console.log('Selected restrictions:', selectedRestrictions);
     alert(`Selected: ${selectedRestrictions.join(', ') || 'None'}`);
     // Navigate to next screen
+    setOnboardingData({
+      ...onboardingData,
+      dietaryRestrictions: selectedRestrictions,
+      step: 'budget.js',
+      onNext: 'budget.js'
+    })
   };
 
   return (

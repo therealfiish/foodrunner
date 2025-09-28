@@ -94,66 +94,138 @@ const LunchPlanningScreen = () => {
             time
           </h2>
           
-          {/* Time picker */}
+          {/* Time picker - True iOS style scroll wheel */}
           <div className={`${colors.timePicker} rounded-2xl p-6 flex justify-center items-center space-x-4`}>
-            {/* Hour */}
-            <div className="text-center">
-              <button
-                onClick={() => handleTimeChange('hour', selectedTime.hour < 12 ? selectedTime.hour + 1 : 1)}
-                className={`text-sm ${colors.textSecondary} mb-2 block mx-auto hover:${colors.brandGreen} transition-colors`}
-              >
-                ▲
-              </button>
-              <div className={`text-4xl font-bold ${colors.text} w-16 text-center`}>
-                {selectedTime.hour}
+            {/* Hour picker */}
+            <div className="flex flex-col items-center">
+              <div className="h-40 w-20 overflow-hidden relative">
+                {/* Selection highlight */}
+                <div className="absolute top-1/2 left-0 right-0 h-10 -mt-5 border-t border-b border-gray-400 border-opacity-30 pointer-events-none z-10"></div>
+                
+                {/* Scrollable hours */}
+                <div 
+                  className="absolute inset-0 flex flex-col items-center justify-start pt-16 cursor-grab active:cursor-grabbing"
+                  style={{
+                    transform: `translateY(${(12 - selectedTime.hour) * -40}px)`,
+                    transition: 'transform 0.3s ease-out'
+                  }}
+                  onWheel={(e) => {
+                    e.preventDefault();
+                    const delta = e.deltaY > 0 ? 1 : -1;
+                    const newHour = selectedTime.hour + delta;
+                    if (newHour >= 1 && newHour <= 12) {
+                      handleTimeChange('hour', newHour);
+                    } else if (newHour < 1) {
+                      handleTimeChange('hour', 12);
+                    } else if (newHour > 12) {
+                      handleTimeChange('hour', 1);
+                    }
+                  }}
+                >
+                  {/* Generate hours 1-12 multiple times for continuous scroll */}
+                  {Array.from({length: 36}, (_, i) => {
+                    const hour = (i % 12) + 1;
+                    const isSelected = hour === selectedTime.hour && Math.floor(i/12) === 1;
+                    return (
+                      <div
+                        key={i}
+                        className={`h-10 flex items-center justify-center text-2xl font-bold w-full ${
+                          isSelected ? colors.text : colors.textSecondary
+                        } ${isSelected ? 'opacity-100' : 'opacity-50'}`}
+                        onClick={() => handleTimeChange('hour', hour)}
+                      >
+                        {hour}
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
-              <button
-                onClick={() => handleTimeChange('hour', selectedTime.hour > 1 ? selectedTime.hour - 1 : 12)}
-                className={`text-sm ${colors.textSecondary} mt-2 block mx-auto hover:${colors.brandGreen} transition-colors`}
-              >
-                ▼
-              </button>
             </div>
 
             {/* Separator */}
-            <div className={`text-4xl font-bold ${colors.text}`}>:</div>
+            <div className={`text-3xl font-bold ${colors.text} px-2`}>:</div>
 
-            {/* Minutes */}
-            <div className="text-center">
-              <button
-                onClick={() => handleTimeChange('minute', selectedTime.minute < 45 ? selectedTime.minute + 15 : 0)}
-                className={`text-sm ${colors.textSecondary} mb-2 block mx-auto hover:${colors.brandGreen} transition-colors`}
-              >
-                ▲
-              </button>
-              <div className={`text-4xl font-bold ${colors.text} w-16 text-center`}>
-                {selectedTime.minute.toString().padStart(2, '0')}
+            {/* Minutes picker */}
+            <div className="flex flex-col items-center">
+              <div className="h-40 w-20 overflow-hidden relative">
+                {/* Selection highlight */}
+                <div className="absolute top-1/2 left-0 right-0 h-10 -mt-5 border-t border-b border-gray-400 border-opacity-30 pointer-events-none z-10"></div>
+                
+                {/* Scrollable minutes */}
+                <div 
+                  className="absolute inset-0 flex flex-col items-center justify-start pt-16 cursor-grab active:cursor-grabbing"
+                  style={{
+                    transform: `translateY(${(3 - selectedTime.minute/15) * -40}px)`,
+                    transition: 'transform 0.3s ease-out'
+                  }}
+                  onWheel={(e) => {
+                    e.preventDefault();
+                    const delta = e.deltaY > 0 ? 15 : -15;
+                    const newMinute = selectedTime.minute + delta;
+                    if (newMinute >= 0 && newMinute <= 45) {
+                      handleTimeChange('minute', newMinute);
+                    } else if (newMinute < 0) {
+                      handleTimeChange('minute', 45);
+                    } else if (newMinute > 45) {
+                      handleTimeChange('minute', 0);
+                    }
+                  }}
+                >
+                  {/* Generate minutes 0,15,30,45 multiple times for continuous scroll */}
+                  {Array.from({length: 12}, (_, i) => {
+                    const minute = (i % 4) * 15;
+                    const isSelected = minute === selectedTime.minute && Math.floor(i/4) === 1;
+                    return (
+                      <div
+                        key={i}
+                        className={`h-10 flex items-center justify-center text-2xl font-bold w-full ${
+                          isSelected ? colors.text : colors.textSecondary
+                        } ${isSelected ? 'opacity-100' : 'opacity-50'}`}
+                        onClick={() => handleTimeChange('minute', minute)}
+                      >
+                        {minute.toString().padStart(2, '0')}
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
-              <button
-                onClick={() => handleTimeChange('minute', selectedTime.minute > 0 ? selectedTime.minute - 15 : 45)}
-                className={`text-sm ${colors.textSecondary} mt-2 block mx-auto hover:${colors.brandGreen} transition-colors`}
-              >
-                ▼
-              </button>
             </div>
 
-            {/* AM/PM */}
-            <div className="text-center">
-              <button
-                onClick={() => handleTimeChange('period', selectedTime.period === 'AM' ? 'PM' : 'AM')}
-                className={`text-sm ${colors.textSecondary} mb-2 block mx-auto hover:${colors.brandGreen} transition-colors`}
-              >
-                ▲
-              </button>
-              <div className={`text-4xl font-bold ${colors.text} w-16 text-center`}>
-                {selectedTime.period}
+            {/* AM/PM picker */}
+            <div className="flex flex-col items-center">
+              <div className="h-40 w-20 overflow-hidden relative">
+                {/* Selection highlight */}
+                <div className="absolute top-1/2 left-0 right-0 h-10 -mt-5 border-t border-b border-gray-400 border-opacity-30 pointer-events-none z-10"></div>
+                
+                {/* Scrollable AM/PM */}
+                <div 
+                  className="absolute inset-0 flex flex-col items-center justify-start pt-16 cursor-grab active:cursor-grabbing"
+                  style={{
+                    transform: `translateY(${selectedTime.period === 'AM' ? 0 : -40}px)`,
+                    transition: 'transform 0.3s ease-out'
+                  }}
+                  onWheel={(e) => {
+                    e.preventDefault();
+                    handleTimeChange('period', selectedTime.period === 'AM' ? 'PM' : 'AM');
+                  }}
+                >
+                  {/* AM/PM options */}
+                  {['AM', 'PM', 'AM', 'PM'].map((period, i) => {
+                    const isSelected = period === selectedTime.period && (i === 0 || i === 1);
+                    return (
+                      <div
+                        key={i}
+                        className={`h-10 flex items-center justify-center text-2xl font-bold w-full ${
+                          isSelected ? colors.text : colors.textSecondary
+                        } ${isSelected ? 'opacity-100' : 'opacity-50'}`}
+                        onClick={() => handleTimeChange('period', period)}
+                      >
+                        {period}
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
-              <button
-                onClick={() => handleTimeChange('period', selectedTime.period === 'AM' ? 'PM' : 'AM')}
-                className={`text-sm ${colors.textSecondary} mt-2 block mx-auto hover:${colors.brandGreen} transition-colors`}
-              >
-                ▼
-              </button>
             </div>
           </div>
         </div>

@@ -48,14 +48,12 @@ const AppNavigator = () => {
   const handleGoogleSignUp = (user, tokens) => {
     setUserData(user);
     setUserTokens(tokens);
-    // Start onboarding flow after authentication
     navigateToScreen('welcome-onboarding');
   };
 
   const handleGoogleLogin = (user, tokens) => {
     setUserData(user);
     setUserTokens(tokens);
-    // Start onboarding flow after authentication
     navigateToScreen('welcome-onboarding');
   };
 
@@ -264,14 +262,14 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
-  debugInfo: {
+  /*debugInfo: {
     position: 'absolute',
     bottom: 20,
     left: 10,
     backgroundColor: 'rgba(0,0,0,0.7)',
     padding: 8,
     borderRadius: 4,
-  },
+  },*/
   debugText: {
     color: 'white',
     fontSize: 10,

@@ -24,8 +24,17 @@ const SplashScreen = ({
 
   // Animation values
   const foodSlideAnim = useRef(new Animated.Value(-width)).current;
-  const runnerSlideAnim = useRef(new Animated.Value(-width)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
+  
+  // Individual letter animations for "RUNNER"
+  const letterAnims = useRef([
+    new Animated.Value(-width), // R
+    new Animated.Value(-width), // U
+    new Animated.Value(-width), // N
+    new Animated.Value(-width), // N
+    new Animated.Value(-width), // E
+    new Animated.Value(-width), // R
+  ]).current;
 
   useEffect(() => {
     // Start fade in
@@ -45,20 +54,26 @@ const SplashScreen = ({
       }).start();
     }, 600);
 
-    // RUNNER swooshes in
+    // RUNNER letters run in one by one
     const timer2 = setTimeout(() => {
       setAnimationStep(2);
-      Animated.timing(runnerSlideAnim, {
-        toValue: 0,
-        duration: 800,
-        useNativeDriver: true,
-      }).start();
+      // Animate each letter of "RUNNER" with staggered timing
+      letterAnims.forEach((letterAnim, index) => {
+        setTimeout(() => {
+          Animated.spring(letterAnim, {
+            toValue: 0,
+            tension: 100,
+            friction: 8,
+            useNativeDriver: true,
+          }).start();
+        }, index * 150); // 150ms delay between each letter
+      });
     }, 1800);
 
-    // Move to next screen
+    // Move to next screen (longer delay to accommodate all letters)
     const timer3 = setTimeout(() => {
       onAnimationComplete();
-    }, 4000);
+    }, 4500);
 
     return () => {
       clearTimeout(timer1);
@@ -76,9 +91,19 @@ const SplashScreen = ({
             <Text style={[styles.titleText, { color: theme.text }]}>FOOD</Text>
           </Animated.View>
           
-          <Animated.View style={{ transform: [{ translateX: runnerSlideAnim }] }}>
-            <Text style={[styles.titleText, styles.accentText]}>RUNNER</Text>
-          </Animated.View>
+          {/* RUNNER with individual letter animations */}
+          <View style={styles.runnerContainer}>
+            {['R', 'U', 'N', 'N', 'E', 'R'].map((letter, index) => (
+              <Animated.View 
+                key={index}
+                style={{ 
+                  transform: [{ translateX: letterAnims[index] }] 
+                }}
+              >
+                <Text style={[styles.titleText, styles.accentText]}>{letter}</Text>
+              </Animated.View>
+            ))}
+          </View>
         </View>
       </Animated.View>
 
@@ -102,6 +127,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   textContainer: {
+    alignItems: 'center',
+  },
+  runnerContainer: {
+    flexDirection: 'row',
     alignItems: 'center',
   },
   titleText: {

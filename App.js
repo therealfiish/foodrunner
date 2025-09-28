@@ -9,17 +9,20 @@ import {
 } from 'react-native';
 import SplashScreen from './SplashScreen';
 import AuthScreen from './AuthScreen';
+import TransitionScreen from './TransitionScreen';
 import { getTheme } from './theme';
 
 const FoodRunner = () => {
   const [currentScreen, setCurrentScreen] = useState('splash');
   const [animationStep, setAnimationStep] = useState(0);
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
   const theme = getTheme(isDarkMode);
 
   const handleSplashComplete = () => {
-    setCurrentScreen('auth');
+    setIsTransitioning(true);
+    setCurrentScreen('transition');
   };
 
   const handleGoogleSignUp = () => {
@@ -61,6 +64,15 @@ const FoodRunner = () => {
         animationStep={animationStep}
         setAnimationStep={setAnimationStep}
         onAnimationComplete={handleSplashComplete}
+      />
+    );
+  } else if (currentScreen === 'transition') {
+    return (
+      <TransitionScreen 
+        isDarkMode={isDarkMode}
+        setIsDarkMode={setIsDarkMode}
+        onGoogleSignUp={handleGoogleSignUp}
+        onGoogleLogin={handleGoogleLogin}
       />
     );
   } else if (currentScreen === 'auth') {

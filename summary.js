@@ -1,6 +1,6 @@
 // SummaryScreen.js
 import React, { useState } from 'react';
-import { useOnboarding } from './DataManager';
+import { useOnboarding } from './datacollection';
 
 const SummaryScreen = () => {
   const { 

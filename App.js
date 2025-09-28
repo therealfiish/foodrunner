@@ -12,15 +12,15 @@ import SplashScreen from './SplashScreen';
 import AuthScreen from './AuthScreen';
 import TransitionScreen from './TransitionScreen';
 import { getTheme } from './theme';
-import WelcomeOnboardingScreen from './onboarding';
-import HomeAddressScreen from './homelocation';
+// import WelcomeOnboardingScreen from './onboarding';
+// import HomeAddressScreen from './homelocation';
 import DietaryRestrictionsScreen from './dietary';
-import CuisinesScreen from './cuisines';
-import BudgetScreen from './budget';
-import BreakfastScreen from './breakfast';
-import LunchScreen from './lunch';
-import DinnerScreen from './dinner';
-import SummaryScreen from './summary';
+// import CuisinesScreen from './cuisines';
+// import BudgetScreen from './budget';
+// import BreakfastScreen from './breakfast';
+// import LunchScreen from './lunch';
+// import DinnerScreen from './dinner';
+// import SummaryScreen from './summary';
 
 // Main navigation component that uses the onboarding data
 const AppNavigator = () => {
@@ -128,8 +128,7 @@ const AppNavigator = () => {
           <TransitionScreen 
             isDarkMode={isDarkMode}
             setIsDarkMode={setIsDarkMode}
-            onGoogleSignUp={handleGoogleSignUp}
-            onGoogleLogin={handleGoogleLogin}
+            navigateToScreen={navigateToScreen}
           />
         );
       
@@ -144,32 +143,32 @@ const AppNavigator = () => {
         );
       
       // Onboarding flow screens
-      case 'welcome-onboarding':
-        return <WelcomeOnboardingScreen onNext={navigateToScreen} />;
+      // case 'welcome-onboarding':
+      //   return <WelcomeOnboardingScreen onNext={navigateToScreen} />;
       
-      case 'home-address':
-        return <HomeAddressScreen onNext={navigateToScreen} />;
+      // case 'home-address':
+      //   return <HomeAddressScreen onNext={navigateToScreen} />;
       
       case 'dietary':
         return <DietaryRestrictionsScreen onNext={navigateToScreen} />;
       
-      case 'cuisines':
-        return <CuisinesScreen onNext={navigateToScreen} />;
+      // case 'cuisines':
+      //   return <CuisinesScreen onNext={navigateToScreen} />;
       
-      case 'budget':
-        return <BudgetScreen onNext={navigateToScreen} />;
+      // case 'budget':
+      //   return <BudgetScreen onNext={navigateToScreen} />;
       
-      case 'breakfast':
-        return <BreakfastScreen onNext={navigateToScreen} />;
+      // case 'breakfast':
+      //   return <BreakfastScreen onNext={navigateToScreen} />;
       
-      case 'lunch':
-        return <LunchScreen onNext={navigateToScreen} />;
+      // case 'lunch':
+      //   return <LunchScreen onNext={navigateToScreen} />;
       
-      case 'dinner':
-        return <DinnerScreen onNext={navigateToScreen} />;
+      // case 'dinner':
+      //   return <DinnerScreen onNext={navigateToScreen} />;
       
-      case 'summary':
-        return <SummaryScreen onNext={navigateToScreen} />;
+      // case 'summary':
+      //   return <SummaryScreen onNext={navigateToScreen} />;
       
       case 'main':
       default:

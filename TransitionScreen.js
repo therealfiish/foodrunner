@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { 
   View, 
   Text, 
@@ -8,24 +8,18 @@ import {
   Animated,
   SafeAreaView,
   StatusBar,
-  Easing,
-  Alert,
-  ActivityIndicator
+  Easing
 } from 'react-native';
 import { getTheme } from './theme';
-import GoogleAuthService from './services/GoogleAuthService';
 
 const { width, height } = Dimensions.get('window');
 
 const TransitionScreen = ({ 
   isDarkMode, 
   setIsDarkMode, 
-  onGoogleSignUp, 
-  onGoogleLogin 
+  navigateToScreen 
 }) => {
   const theme = getTheme(isDarkMode);
-  const [isLoading, setIsLoading] = useState(false);
-  const [loadingText, setLoadingText] = useState('');
 
   // Animation values
   const titleMoveUpAnim = useRef(new Animated.Value(0)).current; // 0 = splash position, 1 = auth position
@@ -66,52 +60,9 @@ const TransitionScreen = ({
     startTransition();
   }, []);
 
-  // Real Google Sign-in handler
-  const handleGoogleSignIn = async (isSignUp = false) => {
-    setIsLoading(true);
-    setLoadingText(isSignUp ? 'Creating account...' : 'Signing in...');
-
-    try {
-      const result = await GoogleAuthService.signInWithGoogle();
-      
-      if (result.success) {
-        const { user, tokens } = result;
-        
-        // Show success message with user info
-        Alert.alert(
-          isSignUp ? 'Account Created!' : 'Welcome Back!',
-          `Hello ${user.fullName}!\n\nWe now have access to:\n• Your profile information\n• Google Calendar\n• Account integration`,
-          [
-            {
-              text: 'Continue',
-              onPress: () => {
-                if (isSignUp && onGoogleSignUp) {
-                  onGoogleSignUp(user, tokens);
-                } else if (!isSignUp && onGoogleLogin) {
-                  onGoogleLogin(user, tokens);
-                }
-              }
-            }
-          ]
-        );
-      } else {
-        Alert.alert(
-          'Authentication Failed',
-          result.error || 'Unable to sign in with Google. Please try again.',
-          [{ text: 'OK' }]
-        );
-      }
-    } catch (error) {
-      console.error('Google Sign-in Error:', error);
-      Alert.alert(
-        'Error',
-        'Something went wrong during sign-in. Please try again.',
-        [{ text: 'OK' }]
-      );
-    } finally {
-      setIsLoading(false);
-      setLoadingText('');
-    }
+  // Navigate to dietary screen
+  const handleGetMunching = () => {
+    navigateToScreen('dietary');
   };
 
   // Calculate the interpolated position for title movement
@@ -163,50 +114,12 @@ const TransitionScreen = ({
         {/* Animated Buttons */}
         <Animated.View style={[styles.authButtons, { opacity: buttonsOpacityAnim }]}>
           <TouchableOpacity
-            style={[
-              styles.authButton, 
-              { backgroundColor: isLoading ? theme.textSecondary : theme.accent },
-              isLoading && styles.disabledButton
-            ]}
-            onPress={() => handleGoogleSignIn(true)}
-            disabled={isLoading}
+            style={[styles.authButton, { backgroundColor: theme.accent }]}
+            onPress={handleGetMunching}
           >
-            {isLoading && loadingText.includes('Creating') ? (
-              <View style={styles.loadingContainer}>
-                <ActivityIndicator size="small" color={theme.accentText} />
-                <Text style={[styles.authButtonText, { color: theme.accentText, marginLeft: 8 }]}>
-                  {loadingText}
-                </Text>
-              </View>
-            ) : (
-              <Text style={[styles.authButtonText, { color: theme.accentText }]}>
-                Sign Up with Google
-              </Text>
-            )}
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[
-              styles.authButton, 
-              styles.loginButton, 
-              { borderColor: isLoading ? theme.textSecondary : theme.accent },
-              isLoading && styles.disabledButton
-            ]}
-            onPress={() => handleGoogleSignIn(false)}
-            disabled={isLoading}
-          >
-            {isLoading && loadingText.includes('Signing') ? (
-              <View style={styles.loadingContainer}>
-                <ActivityIndicator size="small" color={theme.accent} />
-                <Text style={[styles.authButtonText, { color: theme.accent, marginLeft: 8 }]}>
-                  {loadingText}
-                </Text>
-              </View>
-            ) : (
-              <Text style={[styles.authButtonText, { color: theme.accent }]}>
-                Login with Google
-              </Text>
-            )}
+            <Text style={[styles.authButtonText, { color: theme.accentText }]}>
+              Get Munching!
+            </Text>
           </TouchableOpacity>
         </Animated.View>
 
@@ -280,15 +193,6 @@ const styles = StyleSheet.create({
   },
   disabledButton: {
     opacity: 0.7,
-  },
-  loadingContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  loginButton: {
-    backgroundColor: 'transparent',
-    borderWidth: 2,
   },
   authButtonText: {
     fontSize: 18,

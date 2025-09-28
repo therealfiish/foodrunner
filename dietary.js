@@ -1,55 +1,45 @@
 import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  SafeAreaView,
+  StatusBar,
+  ScrollView,
+  Dimensions
+} from 'react-native';
 import { useOnboarding } from './datacollection';
+import { getTheme } from './theme';
 
-const DietaryRestrictionsScreen = () => {
-    const { onboardingData, setOnboardingData } = useOnboarding();
-  const [isDarkMode, setIsDarkMode] = useState(true); // Starting with dark mode to match your design
-  const [selectedRestrictions, setSelectedRestrictions] = useState([]);
+const { width, height } = Dimensions.get('window');
 
-  // Color theme variables
-  const theme = {
-    light: {
-      bg: 'bg-gray-50',
-      cardBg: 'bg-white',
-      text: 'text-gray-900',
-      textSecondary: 'text-gray-600',
-      accent: 'bg-emerald-600',
-      accentHover: 'bg-emerald-700',
-      accentText: 'text-white',
-      border: 'border-gray-200',
-      checkbox: 'border-gray-300',
-      checkboxChecked: 'bg-emerald-500 border-emerald-500'
-    },
-    dark: {
-      bg: 'bg-gray-900',
-      cardBg: 'bg-gray-800',
-      text: 'text-white',
-      textSecondary: 'text-gray-400',
-      accent: 'bg-emerald-600',
-      accentHover: 'bg-emerald-700',
-      accentText: 'text-white',
-      border: 'border-gray-700',
-      checkbox: 'border-gray-500',
-      checkboxChecked: 'bg-emerald-500 border-emerald-500'
-    }
-  };
+const DietaryRestrictionsScreen = ({ onNext }) => {
+  const { onboardingData, updateOnboardingData } = useOnboarding();
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [selectedRestrictions, setSelectedRestrictions] = useState(
+    onboardingData.dietaryRestrictions || []
+  );
 
-  const colors = isDarkMode ? theme.dark : theme.light;
+  const theme = getTheme(isDarkMode);
 
   // Dietary restrictions options
   const dietaryOptions = [
     'Gluten-free',
-    'Dairy-free',
+    'Dairy-free', 
     'Nut-free',
     'Egg-free',
     'Soy-free',
     'Vegetarian',
     'Vegan',
     'Halal',
-    'Kosher'
+    'Kosher',
+    'Low-carb',
+    'Keto',
+    'Paleo'
   ];
 
-  // Handle checkbox toggle
+  // Handle restriction toggle
   const toggleRestriction = (restriction) => {
     setSelectedRestrictions(prev => 
       prev.includes(restriction)
@@ -61,136 +51,276 @@ const DietaryRestrictionsScreen = () => {
   // Select all functionality
   const selectAll = () => {
     if (selectedRestrictions.length === dietaryOptions.length) {
-      setSelectedRestrictions([]); // Deselect all if all are selected
+      setSelectedRestrictions([]);
     } else {
-      setSelectedRestrictions([...dietaryOptions]); // Select all
+      setSelectedRestrictions([...dietaryOptions]);
     }
   };
 
   const handleContinue = () => {
-    console.log('Selected restrictions:', selectedRestrictions);
-    alert(`Selected: ${selectedRestrictions.join(', ') || 'None'}`);
-    // Navigate to next screen
-    setOnboardingData({
-      ...onboardingData,
+    updateOnboardingData({
       dietaryRestrictions: selectedRestrictions,
-      step: 'cuisines.js',
-      onNext: 'cuisines.js'
+      currentStep: 'complete'
     });
+    // For now, navigate back to main instead of cuisines to avoid HTML component errors
+    onNext('main');
+  };
+
+  const handleSkip = () => {
+    updateOnboardingData({
+      dietaryRestrictions: [],
+      currentStep: 'complete'
+    });
+    // For now, navigate back to main instead of cuisines to avoid HTML component errors
+    onNext('main');
   };
 
   return (
-    <div className={`min-h-screen ${colors.bg} transition-colors duration-300 px-6 py-8`}>
+    <SafeAreaView style={[styles.container, { backgroundColor: theme.bg }]}>
+      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
       
       {/* Header */}
-      <div className="max-w-md mx-auto">
-        <div className="text-center mb-12">
-          {/* App title */}
-          <h1 className={`text-2xl font-medium ${colors.text} mb-8`}>
-            Food Runner
-          </h1>
+      <View style={styles.header}>
+        <Text style={[styles.appTitle, { color: theme.text }]}>FOOD RUNNER</Text>
+        
+        {/* Theme Toggle */}
+        <TouchableOpacity 
+          style={[styles.themeToggle, { backgroundColor: theme.cardBg }]}
+          onPress={() => setIsDarkMode(!isDarkMode)}
+        >
+          <Text style={styles.themeToggleText}>{isDarkMode ? '☀️' : '🌙'}</Text>
+        </TouchableOpacity>
+      </View>
 
-          {/* Page title */}
-          <h2 className={`text-4xl md:text-5xl font-light ${colors.text} leading-tight mb-4`}>
-            Dietary<br />
-            Restrictions
-          </h2>
+      <ScrollView 
+        style={styles.content}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+      >
+        {/* Title Section */}
+        <View style={styles.titleSection}>
+          <Text style={[styles.mainTitle, { color: theme.text }]}>
+            Dietary{'\n'}Restrictions
+          </Text>
+          <Text style={[styles.subtitle, { color: theme.textSecondary }]}>
+            Let us know about your dietary preferences so we can personalize your meal plans
+          </Text>
+        </View>
 
-          {/* Select All button */}
-          <button
-            onClick={selectAll}
-            className={`text-lg ${colors.textSecondary} hover:${colors.text} transition-colors duration-200`}
-          >
-            ({selectedRestrictions.length === dietaryOptions.length ? 'Deselect All' : 'Select All'})
-          </button>
-        </div>
+        {/* Select All Button */}
+        <TouchableOpacity onPress={selectAll} style={styles.selectAllButton}>
+          <Text style={[styles.selectAllText, { color: theme.accent }]}>
+            {selectedRestrictions.length === dietaryOptions.length ? 'Deselect All' : 'Select All'}
+          </Text>
+        </TouchableOpacity>
 
-        {/* Checkbox list */}
-        <div className="space-y-6 mb-12">
+        {/* Dietary Options */}
+        <View style={styles.optionsContainer}>
           {dietaryOptions.map((restriction) => {
             const isSelected = selectedRestrictions.includes(restriction);
             
             return (
-              <div
+              <TouchableOpacity
                 key={restriction}
-                onClick={() => toggleRestriction(restriction)}
-                className="flex items-center space-x-4 cursor-pointer group"
+                onPress={() => toggleRestriction(restriction)}
+                style={[
+                  styles.optionItem,
+                  { 
+                    backgroundColor: theme.cardBg,
+                    borderColor: isSelected ? theme.accent : theme.border
+                  }
+                ]}
               >
-                {/* Custom checkbox */}
-                <div className={`w-6 h-6 rounded border-2 flex items-center justify-center transition-all duration-200 ${
-                  isSelected 
-                    ? colors.checkboxChecked 
-                    : `${colors.checkbox} group-hover:border-emerald-400`
-                }`}>
+                <View style={[
+                  styles.checkbox,
+                  { 
+                    backgroundColor: isSelected ? theme.accent : 'transparent',
+                    borderColor: isSelected ? theme.accent : theme.border
+                  }
+                ]}>
                   {isSelected && (
-                    <svg 
-                      className="w-4 h-4 text-white" 
-                      fill="none" 
-                      stroke="currentColor" 
-                      viewBox="0 0 24 24"
-                    >
-                      <path 
-                        strokeLinecap="round" 
-                        strokeLinejoin="round" 
-                        strokeWidth={3} 
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
+                    <Text style={[styles.checkmark, { color: theme.accentText }]}>✓</Text>
                   )}
-                </div>
-
-                {/* Restriction label */}
-                <label className={`text-xl ${colors.text} cursor-pointer group-hover:text-emerald-400 transition-colors duration-200`}>
+                </View>
+                <Text style={[styles.optionText, { color: theme.text }]}>
                   {restriction}
-                </label>
-              </div>
+                </Text>
+              </TouchableOpacity>
             );
           })}
-        </div>
+        </View>
 
-        {/* Continue button */}
-        <button
-          onClick={handleContinue}
-          className={`w-full py-4 px-6 ${colors.accent} hover:${colors.accentHover} ${colors.accentText} rounded-2xl font-semibold text-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95`}
-        >
-          Continue
-        </button>
-
-        {/* Skip option */}
-        <button className={`w-full mt-4 py-2 text-lg ${colors.textSecondary} hover:${colors.text} transition-colors duration-200`}>
-          Skip for now
-        </button>
-      </div>
-
-      {/* Theme toggle */}
-      <button
-        onClick={() => setIsDarkMode(!isDarkMode)}
-        className={`absolute top-6 right-6 p-3 rounded-full ${colors.cardBg} ${colors.border} border shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110`}
-      >
-        {isDarkMode ? (
-          <span className="text-xl">☀️</span>
-        ) : (
-          <span className="text-xl">🌙</span>
+        {/* Selected Count */}
+        {selectedRestrictions.length > 0 && (
+          <View style={[styles.selectedCount, { backgroundColor: theme.accent }]}>
+            <Text style={[styles.selectedCountText, { color: theme.accentText }]}>
+              {selectedRestrictions.length} selected
+            </Text>
+          </View>
         )}
-      </button>
+      </ScrollView>
 
-      {/* Progress indicator */}
-      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex space-x-2">
-        <div className="w-2 h-2 bg-gray-400 rounded-full opacity-50"></div>
-        <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
-        <div className="w-2 h-2 bg-gray-400 rounded-full opacity-50"></div>
-      </div>
+      {/* Bottom Actions */}
+      <View style={[styles.bottomActions, { backgroundColor: theme.bg }]}>
+        <TouchableOpacity
+          onPress={handleContinue}
+          style={[styles.continueButton, { backgroundColor: theme.accent }]}
+        >
+          <Text style={[styles.continueButtonText, { color: theme.accentText }]}>
+            Continue
+          </Text>
+        </TouchableOpacity>
 
-      {/* Selected count indicator */}
-      {selectedRestrictions.length > 0 && (
-        <div className="absolute top-20 left-6">
-          <div className={`px-3 py-1 rounded-full ${colors.accent} ${colors.accentText} text-sm font-medium`}>
-            {selectedRestrictions.length} selected
-          </div>
-        </div>
-      )}
-    </div>
+        <TouchableOpacity onPress={handleSkip} style={styles.skipButton}>
+          <Text style={[styles.skipButtonText, { color: theme.textSecondary }]}>
+            Skip for now
+          </Text>
+        </TouchableOpacity>
+      </View>
+    </SafeAreaView>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 24,
+    paddingTop: 16,
+    paddingBottom: 8,
+  },
+  appTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    letterSpacing: 1,
+  },
+  themeToggle: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  themeToggleText: {
+    fontSize: 20,
+  },
+  content: {
+    flex: 1,
+    paddingHorizontal: 24,
+  },
+  scrollContent: {
+    paddingBottom: 120,
+  },
+  titleSection: {
+    alignItems: 'center',
+    marginVertical: 32,
+  },
+  mainTitle: {
+    fontSize: width > 400 ? 48 : 40,
+    fontWeight: '300',
+    textAlign: 'center',
+    lineHeight: width > 400 ? 56 : 48,
+    marginBottom: 16,
+  },
+  subtitle: {
+    fontSize: 16,
+    textAlign: 'center',
+    lineHeight: 24,
+    paddingHorizontal: 16,
+  },
+  selectAllButton: {
+    alignSelf: 'center',
+    marginBottom: 24,
+    paddingVertical: 8,
+  },
+  selectAllText: {
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  optionsContainer: {
+    gap: 12,
+  },
+  optionItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 20,
+    paddingHorizontal: 20,
+    borderRadius: 16,
+    borderWidth: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  checkbox: {
+    width: 24,
+    height: 24,
+    borderRadius: 6,
+    borderWidth: 2,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 16,
+  },
+  checkmark: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  optionText: {
+    fontSize: 18,
+    fontWeight: '500',
+    flex: 1,
+  },
+  selectedCount: {
+    alignSelf: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    marginTop: 24,
+  },
+  selectedCountText: {
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  bottomActions: {
+    paddingHorizontal: 24,
+    paddingVertical: 16,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(0,0,0,0.05)',
+  },
+  continueButton: {
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    borderRadius: 16,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+    marginBottom: 12,
+  },
+  continueButtonText: {
+    fontSize: 18,
+    fontWeight: '600',
+  },
+  skipButton: {
+    paddingVertical: 12,
+    alignItems: 'center',
+  },
+  skipButtonText: {
+    fontSize: 16,
+    fontWeight: '500',
+  },
+});
 
 export default DietaryRestrictionsScreen;

@@ -42,15 +42,14 @@ const HomeAddressScreen = () => {
     if (address.trim()) {
       console.log('Home address:', address);
       alert(`Address saved: ${address}`);
-      // Navigate to next screen
     } else {
       alert('Please enter your home address');
     }
     setOnboardingData({
       ...onboardingData,
       homeAddress: address,
-      step: 'calendar.js',
-      onNext: 'calendar.js'
+      step: 'dietary.js',
+      onNext: 'dietary.js'
     });
   };
 

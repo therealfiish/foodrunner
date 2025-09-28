@@ -12,8 +12,6 @@ import SplashScreen from './SplashScreen';
 import AuthScreen from './AuthScreen';
 import TransitionScreen from './TransitionScreen';
 import { useSystemTheme } from './theme';
-// import WelcomeOnboardingScreen from './onboarding';
-// import HomeAddressScreen from './homelocation';
 import DietaryRestrictionsScreen from './dietary';
 import CuisinesScreen from './cuisines_rn';
 import BudgetScreen from './budget_rn';
@@ -22,7 +20,6 @@ import LunchScreen from './lunch_rn';
 import DinnerScreen from './dinner_rn';
 import TripScreen from './trip_rn';
 import RouteScreen from './RouteScreen';
-// import SummaryScreen from './summary';
 
 // Main navigation component that uses the onboarding data
 const AppNavigator = () => {

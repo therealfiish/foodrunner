@@ -21,6 +21,7 @@ import BreakfastScreen from './breakfast_rn';
 import LunchScreen from './lunch_rn';
 import DinnerScreen from './dinner_rn';
 import TripScreen from './trip_rn';
+import RouteScreen from './RouteScreen';
 // import SummaryScreen from './summary';
 
 // Main navigation component that uses the onboarding data
@@ -163,6 +164,9 @@ const AppNavigator = () => {
       
       case 'trip':
         return <TripScreen onNext={navigateToScreen} />;
+      
+      case 'route':
+        return <RouteScreen navigation={{ navigate: navigateToScreen, goBack: () => navigateToScreen('trip') }} />;
       
       // case 'summary':
       //   return <SummaryScreen onNext={navigateToScreen} />;

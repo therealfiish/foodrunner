@@ -363,6 +363,9 @@ def _add_trip_to_user_list(user_id: str, trip_id: str):
         # Save updated list
         with open(user_trips_file, 'w') as f:
             json.dump(trip_ids, f, indent=2)
+    
+    except Exception as e:
+        logger.error(f"Error adding trip to user list: {e}")
 
 @trips_bp.route('/plan-route', methods=['POST'])
 def plan_route():
@@ -431,7 +434,7 @@ def plan_route():
         # Extract route points for restaurant searching
         route_points = openroute_service.get_route_points_with_spacing(
             route_data['geometry'], 
-            spacing_miles=10.0  # Search every 10 miles along route
+            spacing_miles=25.0  # Search every 25 miles along route for longer trips
         )
         
         logger.info(f"Generated {len(route_points)} search points along route")

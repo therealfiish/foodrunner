@@ -86,8 +86,8 @@ const TripScreen = ({ onNext }) => {
       currentStep: 'complete'
     });
 
-    // Navigate to home page
-    onNext('home');
+    // Navigate to route planning page
+    onNext('route');
   };
 
   const handleSkip = () => {
@@ -98,7 +98,7 @@ const TripScreen = ({ onNext }) => {
       tripPointBPlaceId: '',
       currentStep: 'complete'
     });
-    onNext('home');
+    onNext('route');
   };
 
   return (

@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 import logging
 from datetime import datetime
+from typing import Dict
 from ..services.ai_recommendations import ai_engine
 from ..services.overpass_api import overpass_service
 from ..services.openroute_service import openroute_service
@@ -247,3 +248,153 @@ def _calculate_average_price(price_levels: list) -> float:
 def _get_current_timestamp():
     from datetime import datetime
     return datetime.utcnow().isoformat()
+
+@recommendations_bp.route('/learn-selections', methods=['POST'])
+def learn_from_selections():
+    """
+    Learn from user restaurant selections to improve future recommendations
+    
+    Expected JSON body:
+    {
+        "user_id": "user123",
+        "trip_context": {
+            "start_coords": [40.7128, -74.0060],
+            "end_coords": [34.0522, -118.2437],
+            "departure_time": "09:00 AM",
+            "total_distance_miles": 2789.5,
+            "travel_duration_hours": 41.2
+        },
+        "selected_restaurants": [
+            {
+                "osm_id": 12345,
+                "name": "Joe's Italian",
+                "cuisine": "italian",
+                "meal_type": "lunch",
+                "lat": 39.9526, 
+                "lon": -75.1652,
+                "distance_from_route_miles": 2.3,
+                "price_level": 2,
+                "rating": 4.2,
+                "dietary_info": {"vegetarian": true}
+            }
+        ],
+        "rejected_restaurants": [
+            {
+                "osm_id": 67890,
+                "name": "Fast Burger",
+                "cuisine": "fast_food", 
+                "meal_type": "lunch",
+                "rejection_reason": "too_expensive"
+            }
+        ],
+        "user_preferences": {
+            "dietary_restrictions": ["vegetarian"],
+            "preferred_cuisines": ["italian", "mexican"],
+            "daily_budget": 50.0
+        }
+    }
+    """
+    try:
+        data = request.get_json()
+        
+        # Validate required fields
+        required_fields = ['user_id', 'selected_restaurants']
+        for field in required_fields:
+            if field not in data:
+                return jsonify({'error': f'Missing required field: {field}'}), 400
+        
+        user_id = data['user_id']
+        selected_restaurants = data['selected_restaurants']
+        rejected_restaurants = data.get('rejected_restaurants', [])
+        trip_context = data.get('trip_context', {})
+        user_preferences = data.get('user_preferences', {})
+        
+        logger.info(f"Learning from {len(selected_restaurants)} selected restaurants for user {user_id}")
+        
+        # Prepare learning data for AI engine
+        learning_data = {
+            'user_id': user_id,
+            'timestamp': datetime.utcnow().isoformat(),
+            'trip_context': trip_context,
+            'user_preferences': user_preferences,
+            'interactions': []
+        }
+        
+        # Process selected restaurants (positive feedback)
+        for restaurant in selected_restaurants:
+            interaction = {
+                'restaurant_id': str(restaurant.get('osm_id', '')),
+                'restaurant_name': restaurant.get('name', ''),
+                'cuisine': restaurant.get('cuisine', ''),
+                'meal_type': restaurant.get('meal_type', ''),
+                'coordinates': [restaurant.get('lat'), restaurant.get('lon')],
+                'distance_from_route_miles': restaurant.get('distance_from_route_miles', 0),
+                'price_level': restaurant.get('price_level', 2),
+                'rating': restaurant.get('rating', 3.0),
+                'dietary_info': restaurant.get('dietary_info', {}),
+                'interaction_type': 'selected',
+                'feedback_score': 1.0  # Positive feedback
+            }
+            learning_data['interactions'].append(interaction)
+        
+        # Process rejected restaurants (negative feedback)
+        for restaurant in rejected_restaurants:
+            interaction = {
+                'restaurant_id': str(restaurant.get('osm_id', '')),
+                'restaurant_name': restaurant.get('name', ''),
+                'cuisine': restaurant.get('cuisine', ''),
+                'meal_type': restaurant.get('meal_type', ''),
+                'rejection_reason': restaurant.get('rejection_reason', 'other'),
+                'interaction_type': 'rejected',
+                'feedback_score': -0.5  # Negative feedback
+            }
+            learning_data['interactions'].append(interaction)
+        
+        # Send to AI engine for learning
+        learning_result = ai_engine.learn_from_user_choices(learning_data)
+        
+        # Store interaction data for future analysis
+        _store_user_interactions(user_id, learning_data)
+        
+        return jsonify({
+            'message': 'Successfully learned from user selections',
+            'interactions_processed': len(learning_data['interactions']),
+            'learning_result': learning_result,
+            'user_id': user_id
+        })
+        
+    except Exception as e:
+        logger.error(f"Error learning from selections: {e}")
+        return jsonify({'error': 'Internal server error'}), 500
+
+def _store_user_interactions(user_id: str, learning_data: Dict):
+    """Store user interaction data for analysis"""
+    try:
+        import json
+        import os
+        
+        # Create interactions file path
+        interactions_file = os.path.join('data', 'users', f'{user_id}_interactions.json')
+        os.makedirs(os.path.dirname(interactions_file), exist_ok=True)
+        
+        # Load existing interactions
+        interactions = []
+        if os.path.exists(interactions_file):
+            with open(interactions_file, 'r') as f:
+                interactions = json.load(f)
+        
+        # Add new interaction data
+        interactions.append(learning_data)
+        
+        # Keep only last 100 interactions to prevent file bloat
+        if len(interactions) > 100:
+            interactions = interactions[-100:]
+        
+        # Save updated interactions
+        with open(interactions_file, 'w') as f:
+            json.dump(interactions, f, indent=2)
+        
+        logger.info(f"Stored interaction data for user {user_id}")
+        
+    except Exception as e:
+        logger.error(f"Error storing user interactions: {e}")

@@ -2,6 +2,14 @@
   "expo": {
     "name": "Food Runner",
     "slug": "foodrunner",
+    "plugins": [
+      [
+        "@heartbot/expo-google-authentication",
+        {
+          "iosUrlScheme": "<reversed iOS clientID. Can find in Google Developer Console>"
+        }
+      ]
+    ],
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/app-logo.png",

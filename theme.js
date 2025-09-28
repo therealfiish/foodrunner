@@ -1,3 +1,5 @@
+import { useColorScheme } from 'react-native';
+
 // Color theme configuration
 export const colors = {
   light: {
@@ -23,3 +25,16 @@ export const colors = {
 };
 
 export const getTheme = (isDarkMode) => isDarkMode ? colors.dark : colors.light;
+
+// Hook to get system theme (forced dark mode)
+export const useSystemTheme = () => {
+  const systemColorScheme = useColorScheme();
+  // Force dark mode always
+  const isDarkMode = true;
+  
+  return {
+    isDarkMode,
+    theme: getTheme(isDarkMode),
+    colorScheme: 'dark'
+  };
+};

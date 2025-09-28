@@ -10,17 +10,15 @@ import {
   ScrollView,
   Alert
 } from 'react-native';
-import { getTheme } from './theme';
+import { useSystemTheme } from './theme';
 
 const { width } = Dimensions.get('window');
 
 const AuthScreen = ({ 
-  isDarkMode, 
-  setIsDarkMode, 
   onGoogleSignUp, 
   onGoogleLogin 
 }) => {
-  const theme = getTheme(isDarkMode);
+  const { isDarkMode, theme } = useSystemTheme();
 
   const handleGoogleSignUp = () => {
     console.log('Google Sign Up clicked');
@@ -65,13 +63,6 @@ const AuthScreen = ({
             </Text>
           </TouchableOpacity>
         </View>
-
-        <TouchableOpacity 
-          style={[styles.themeToggle, styles.authThemeToggle, { backgroundColor: theme.cardBg }]}
-          onPress={() => setIsDarkMode(!isDarkMode)}
-        >
-          <Text style={styles.themeToggleText}>{isDarkMode ? '☀️' : '🌙'}</Text>
-        </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );
@@ -125,25 +116,6 @@ const styles = StyleSheet.create({
   authButtonText: {
     fontSize: 18,
     fontWeight: '600',
-  },
-  themeToggle: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  authThemeToggle: {
-    alignSelf: 'center',
-    marginTop: 32,
-  },
-  themeToggleText: {
-    fontSize: 24,
   },
 });
 

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { OnboardingProvider } from './datacollection';
+import { OnboardingProvider, useOnboarding } from './datacollection';
 import { 
   View, 
   Text, 
@@ -11,26 +11,32 @@ import {
 import SplashScreen from './SplashScreen';
 import AuthScreen from './AuthScreen';
 import TransitionScreen from './TransitionScreen';
-import { getTheme } from './theme';
-import WelcomeOnboardingScreen from './onboarding';
-import HomeAddressScreen from './homelocation';
+import { useSystemTheme } from './theme';
 import DietaryRestrictionsScreen from './dietary';
-import CuisinesScreen from './cuisines';
-import BudgetScreen from './budget';
-import BreakfastScreen from './breakfast';
-import LunchScreen from './lunch';
-import DinnerScreen from './dinner';
-import SummaryScreen from './summary';
+import CuisinesScreen from './cuisines_rn';
+import BudgetScreen from './budget_rn';
+import BreakfastScreen from './breakfast_rn';
+import LunchScreen from './lunch_rn';
+import DinnerScreen from './dinner_rn';
+import TripScreen from './trip_rn';
+import RouteScreen from './RouteScreen';
 
-const FoodRunner = () => {
+// Main navigation component that uses the onboarding data
+const AppNavigator = () => {
+  const { onboardingData, updateStep } = useOnboarding();
   const [currentScreen, setCurrentScreen] = useState('splash');
   const [animationStep, setAnimationStep] = useState(0);
-  const [isDarkMode, setIsDarkMode] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [userData, setUserData] = useState(null);
   const [userTokens, setUserTokens] = useState(null);
 
-  const theme = getTheme(isDarkMode);
+  const { isDarkMode, theme } = useSystemTheme();
+
+  // Navigation function that also updates onboarding data
+  const navigateToScreen = (screen) => {
+    setCurrentScreen(screen);
+    updateStep(screen);
+  };
 
   const handleSplashComplete = () => {
     setIsTransitioning(true);
@@ -40,13 +46,13 @@ const FoodRunner = () => {
   const handleGoogleSignUp = (user, tokens) => {
     setUserData(user);
     setUserTokens(tokens);
-    setCurrentScreen('main');
+    navigateToScreen('welcome-onboarding');
   };
 
   const handleGoogleLogin = (user, tokens) => {
     setUserData(user);
     setUserTokens(tokens);
-    setCurrentScreen('main');
+    navigateToScreen('welcome-onboarding');
   };
 
   const MainApp = () => (
@@ -82,6 +88,15 @@ const FoodRunner = () => {
         
         <TouchableOpacity
           style={[styles.backButton, { backgroundColor: theme.accent }]}
+          onPress={() => navigateToScreen('summary')}
+        >
+          <Text style={[styles.backButtonText, { color: theme.accentText }]}>
+            View Data Summary
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.backButton, { backgroundColor: theme.accent, marginTop: 10 }]}
           onPress={() => setCurrentScreen('transition')}
         >
           <Text style={[styles.backButtonText, { color: theme.accentText }]}>
@@ -92,37 +107,97 @@ const FoodRunner = () => {
     </SafeAreaView>
   );
 
-  if (currentScreen === 'splash') {
-    return (
-      <SplashScreen 
-        isDarkMode={isDarkMode}
-        setIsDarkMode={setIsDarkMode}
-        animationStep={animationStep}
-        setAnimationStep={setAnimationStep}
-        onAnimationComplete={handleSplashComplete}
-      />
-    );
-  } else if (currentScreen === 'transition') {
-    return (
-      <TransitionScreen 
-        isDarkMode={isDarkMode}
-        setIsDarkMode={setIsDarkMode}
-        onGoogleSignUp={handleGoogleSignUp}
-        onGoogleLogin={handleGoogleLogin}
-      />
-    );
-  } else if (currentScreen === 'auth') {
-    return (
-      <AuthScreen 
-        isDarkMode={isDarkMode}
-        setIsDarkMode={setIsDarkMode}
-        onGoogleSignUp={handleGoogleSignUp}
-        onGoogleLogin={handleGoogleLogin}
-      />
-    );
-  } else {
-    return <MainApp />;
-  }
+  // Render the appropriate screen
+  const renderScreen = () => {
+    switch (currentScreen) {
+      case 'splash':
+        return (
+          <SplashScreen 
+            animationStep={animationStep}
+            setAnimationStep={setAnimationStep}
+            onAnimationComplete={handleSplashComplete}
+          />
+        );
+      
+      case 'transition':
+        return (
+          <TransitionScreen 
+            navigateToScreen={navigateToScreen}
+          />
+        );
+      
+      case 'auth':
+        return (
+          <AuthScreen 
+            onGoogleSignUp={handleGoogleSignUp}
+            onGoogleLogin={handleGoogleLogin}
+          />
+        );
+      
+      // Onboarding flow screens
+      // case 'welcome-onboarding':
+      //   return <WelcomeOnboardingScreen onNext={navigateToScreen} />;
+      
+      // case 'home-address':
+      //   return <HomeAddressScreen onNext={navigateToScreen} />;
+      
+      case 'dietary':
+        return <DietaryRestrictionsScreen onNext={navigateToScreen} />;
+      
+      case 'cuisines':
+        return <CuisinesScreen onNext={navigateToScreen} />;
+      
+      case 'budget':
+        return <BudgetScreen onNext={navigateToScreen} />;
+      
+      case 'breakfast':
+        return <BreakfastScreen onNext={navigateToScreen} />;
+      
+      case 'lunch':
+        return <LunchScreen onNext={navigateToScreen} />;
+      
+      case 'dinner':
+        return <DinnerScreen onNext={navigateToScreen} />;
+      
+      case 'trip':
+        return <TripScreen onNext={navigateToScreen} />;
+      
+      case 'route':
+        return <RouteScreen navigation={{ navigate: navigateToScreen, goBack: () => navigateToScreen('trip') }} />;
+      
+      // case 'summary':
+      //   return <SummaryScreen onNext={navigateToScreen} />;
+      
+      case 'main':
+      case 'home':
+      default:
+        return <MainApp />;
+    }
+  };
+
+  return (
+    <View style={styles.container}>
+      {renderScreen()}
+      
+      {/* Debug info - remove in production */}
+      {__DEV__ && (
+        <View style={styles.debugInfo}>
+          <Text style={styles.debugText}>
+            Current: {currentScreen} | Step: {onboardingData.currentStep}
+          </Text>
+        </View>
+      )}
+    </View>
+  );
+};
+
+// Main App component with OnboardingProvider wrapper
+const FoodRunner = () => {
+  return (
+    <OnboardingProvider>
+      <AppNavigator />
+    </OnboardingProvider>
+  );
 };
 
 const styles = StyleSheet.create({
@@ -184,6 +259,18 @@ const styles = StyleSheet.create({
   backButtonText: {
     fontSize: 16,
     fontWeight: '600',
+  },
+  /*debugInfo: {
+    position: 'absolute',
+    bottom: 20,
+    left: 10,
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    padding: 8,
+    borderRadius: 4,
+  },*/
+  debugText: {
+    color: 'white',
+    fontSize: 10,
   },
 });
 

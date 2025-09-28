@@ -7,20 +7,19 @@ import {
   Dimensions, 
   Animated,
   SafeAreaView,
-  StatusBar 
+  StatusBar,
+  Easing
 } from 'react-native';
-import { getTheme } from './theme';
+import { useSystemTheme } from './theme';
 
 const { width } = Dimensions.get('window');
 
 const SplashScreen = ({ 
-  isDarkMode, 
-  setIsDarkMode, 
   animationStep, 
   setAnimationStep, 
   onAnimationComplete 
 }) => {
-  const theme = getTheme(isDarkMode);
+  const { isDarkMode, theme } = useSystemTheme();
 
   // Animation values
   const foodSlideAnim = useRef(new Animated.Value(-width)).current;
@@ -70,10 +69,10 @@ const SplashScreen = ({
       });
     }, 1800);
 
-    // Move to next screen (longer delay to accommodate all letters)
+    // Move to next screen (no fade out)
     const timer3 = setTimeout(() => {
       onAnimationComplete();
-    }, 4500);
+    }, 4200); 
 
     return () => {
       clearTimeout(timer1);
@@ -106,13 +105,6 @@ const SplashScreen = ({
           </View>
         </View>
       </Animated.View>
-
-      <TouchableOpacity 
-        style={[styles.themeToggle, { backgroundColor: theme.cardBg }]}
-        onPress={() => setIsDarkMode(!isDarkMode)}
-      >
-        <Text style={styles.themeToggleText}>{isDarkMode ? '☀️' : '🌙'}</Text>
-      </TouchableOpacity>
     </SafeAreaView>
   );
 };
@@ -141,24 +133,6 @@ const styles = StyleSheet.create({
   },
   accentText: {
     color: '#10b981',
-  },
-  themeToggle: {
-    position: 'absolute',
-    top: 60,
-    right: 24,
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  themeToggleText: {
-    fontSize: 24,
   },
 });
 

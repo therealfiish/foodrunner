@@ -17,6 +17,8 @@ const FoodRunner = () => {
   const [animationStep, setAnimationStep] = useState(0);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [userData, setUserData] = useState(null);
+  const [userTokens, setUserTokens] = useState(null);
 
   const theme = getTheme(isDarkMode);
 
@@ -25,11 +27,15 @@ const FoodRunner = () => {
     setCurrentScreen('transition');
   };
 
-  const handleGoogleSignUp = () => {
+  const handleGoogleSignUp = (user, tokens) => {
+    setUserData(user);
+    setUserTokens(tokens);
     setCurrentScreen('main');
   };
 
-  const handleGoogleLogin = () => {
+  const handleGoogleLogin = (user, tokens) => {
+    setUserData(user);
+    setUserTokens(tokens);
     setCurrentScreen('main');
   };
 
@@ -40,13 +46,33 @@ const FoodRunner = () => {
         <Text style={[styles.mainTitle, { color: theme.text }]}>
           Welcome to Food Runner!
         </Text>
+        
+        {userData && (
+          <View style={styles.userInfoContainer}>
+            <Text style={[styles.welcomeText, { color: theme.text }]}>
+              Hello, {userData.fullName}! 👋
+            </Text>
+            <Text style={[styles.userDetail, { color: theme.textSecondary }]}>
+              📧 {userData.email}
+            </Text>
+            {userData.verifiedEmail && (
+              <Text style={[styles.verifiedBadge, { color: theme.accent }]}>
+                ✅ Verified Account
+              </Text>
+            )}
+            <Text style={[styles.accessGranted, { color: theme.textSecondary }]}>
+              🔑 Google Calendar Access Granted
+            </Text>
+          </View>
+        )}
+        
         <Text style={[styles.mainSubtitle, { color: theme.textSecondary }]}>
           Your AI-powered meal planning assistant
         </Text>
         
         <TouchableOpacity
           style={[styles.backButton, { backgroundColor: theme.accent }]}
-          onPress={() => setCurrentScreen('auth')}
+          onPress={() => setCurrentScreen('transition')}
         >
           <Text style={[styles.backButtonText, { color: theme.accentText }]}>
             Back to Auth
@@ -98,6 +124,35 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 24,
+  },
+  userInfoContainer: {
+    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+    borderRadius: 16,
+    padding: 20,
+    marginVertical: 20,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(16, 185, 129, 0.2)',
+  },
+  welcomeText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  userDetail: {
+    fontSize: 16,
+    marginBottom: 4,
+    textAlign: 'center',
+  },
+  verifiedBadge: {
+    fontSize: 14,
+    fontWeight: '600',
+    marginBottom: 8,
+  },
+  accessGranted: {
+    fontSize: 14,
+    fontStyle: 'italic',
   },
   mainTitle: {
     fontSize: 32,

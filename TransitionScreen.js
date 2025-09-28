@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { 
   View, 
   Text, 
@@ -7,9 +7,13 @@ import {
   Dimensions, 
   Animated,
   SafeAreaView,
-  StatusBar
+  StatusBar,
+  Easing,
+  Alert,
+  ActivityIndicator
 } from 'react-native';
 import { getTheme } from './theme';
+import GoogleAuthService from './services/GoogleAuthService';
 
 const { width, height } = Dimensions.get('window');
 
@@ -20,6 +24,8 @@ const TransitionScreen = ({
   onGoogleLogin 
 }) => {
   const theme = getTheme(isDarkMode);
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadingText, setLoadingText] = useState('');
 
   // Animation values
   const titleMoveUpAnim = useRef(new Animated.Value(0)).current; // 0 = splash position, 1 = auth position
@@ -29,44 +35,94 @@ const TransitionScreen = ({
   useEffect(() => {
     // Start the transition sequence
     const startTransition = () => {
-      // Step 1: Move title upward (duration: 1000ms)
+      // Step 1: Move title upward (duration: 1200ms, smoother)
       Animated.timing(titleMoveUpAnim, {
         toValue: 1,
-        duration: 1000,
+        duration: 1200,
         useNativeDriver: true,
+        // Add easing for smoother movement
+        easing: Easing.bezier(0.25, 0.46, 0.45, 0.94),
       }).start();
 
-      // Step 2: Fade in subtitle (starts at 800ms)
+      // Step 2: Fade in subtitle (starts at 600ms, earlier for smoother flow)
       setTimeout(() => {
         Animated.timing(subtitleOpacityAnim, {
-          toValue: 1,
-          duration: 600,
-          useNativeDriver: true,
-        }).start();
-      }, 800);
-
-      // Step 3: Fade in buttons (starts at 1200ms)
-      setTimeout(() => {
-        Animated.timing(buttonsOpacityAnim, {
           toValue: 1,
           duration: 800,
           useNativeDriver: true,
         }).start();
-      }, 1200);
+      }, 600);
+
+      // Step 3: Fade in buttons (starts at 1000ms)
+      setTimeout(() => {
+        Animated.timing(buttonsOpacityAnim, {
+          toValue: 1,
+          duration: 900,
+          useNativeDriver: true,
+        }).start();
+      }, 1000);
     };
 
     startTransition();
   }, []);
 
+  // Real Google Sign-in handler
+  const handleGoogleSignIn = async (isSignUp = false) => {
+    setIsLoading(true);
+    setLoadingText(isSignUp ? 'Creating account...' : 'Signing in...');
+
+    try {
+      const result = await GoogleAuthService.signInWithGoogle();
+      
+      if (result.success) {
+        const { user, tokens } = result;
+        
+        // Show success message with user info
+        Alert.alert(
+          isSignUp ? 'Account Created!' : 'Welcome Back!',
+          `Hello ${user.fullName}!\n\nWe now have access to:\n• Your profile information\n• Google Calendar\n• Account integration`,
+          [
+            {
+              text: 'Continue',
+              onPress: () => {
+                if (isSignUp && onGoogleSignUp) {
+                  onGoogleSignUp(user, tokens);
+                } else if (!isSignUp && onGoogleLogin) {
+                  onGoogleLogin(user, tokens);
+                }
+              }
+            }
+          ]
+        );
+      } else {
+        Alert.alert(
+          'Authentication Failed',
+          result.error || 'Unable to sign in with Google. Please try again.',
+          [{ text: 'OK' }]
+        );
+      }
+    } catch (error) {
+      console.error('Google Sign-in Error:', error);
+      Alert.alert(
+        'Error',
+        'Something went wrong during sign-in. Please try again.',
+        [{ text: 'OK' }]
+      );
+    } finally {
+      setIsLoading(false);
+      setLoadingText('');
+    }
+  };
+
   // Calculate the interpolated position for title movement
   const titleTranslateY = titleMoveUpAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: [height * 0.1, -height * 0.15], // From center-ish to top
+    outputRange: [0, -height * 0.25], // From splash center position to auth top position
   });
 
   const titleScale = titleMoveUpAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: [1, 0.75], // Slightly smaller in auth position
+    outputRange: [1, 0.8], // Slightly smaller in auth position
   });
 
   return (
@@ -107,21 +163,50 @@ const TransitionScreen = ({
         {/* Animated Buttons */}
         <Animated.View style={[styles.authButtons, { opacity: buttonsOpacityAnim }]}>
           <TouchableOpacity
-            style={[styles.authButton, { backgroundColor: theme.accent }]}
-            onPress={onGoogleSignUp}
+            style={[
+              styles.authButton, 
+              { backgroundColor: isLoading ? theme.textSecondary : theme.accent },
+              isLoading && styles.disabledButton
+            ]}
+            onPress={() => handleGoogleSignIn(true)}
+            disabled={isLoading}
           >
-            <Text style={[styles.authButtonText, { color: theme.accentText }]}>
-              Sign Up with Google
-            </Text>
+            {isLoading && loadingText.includes('Creating') ? (
+              <View style={styles.loadingContainer}>
+                <ActivityIndicator size="small" color={theme.accentText} />
+                <Text style={[styles.authButtonText, { color: theme.accentText, marginLeft: 8 }]}>
+                  {loadingText}
+                </Text>
+              </View>
+            ) : (
+              <Text style={[styles.authButtonText, { color: theme.accentText }]}>
+                Sign Up with Google
+              </Text>
+            )}
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[styles.authButton, styles.loginButton, { borderColor: theme.accent }]}
-            onPress={onGoogleLogin}
+            style={[
+              styles.authButton, 
+              styles.loginButton, 
+              { borderColor: isLoading ? theme.textSecondary : theme.accent },
+              isLoading && styles.disabledButton
+            ]}
+            onPress={() => handleGoogleSignIn(false)}
+            disabled={isLoading}
           >
-            <Text style={[styles.authButtonText, { color: theme.accent }]}>
-              Login with Google
-            </Text>
+            {isLoading && loadingText.includes('Signing') ? (
+              <View style={styles.loadingContainer}>
+                <ActivityIndicator size="small" color={theme.accent} />
+                <Text style={[styles.authButtonText, { color: theme.accent, marginLeft: 8 }]}>
+                  {loadingText}
+                </Text>
+              </View>
+            ) : (
+              <Text style={[styles.authButtonText, { color: theme.accent }]}>
+                Login with Google
+              </Text>
+            )}
           </TouchableOpacity>
         </Animated.View>
 
@@ -192,6 +277,14 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 4,
+  },
+  disabledButton: {
+    opacity: 0.7,
+  },
+  loadingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   loginButton: {
     backgroundColor: 'transparent',
